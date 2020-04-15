@@ -14,3 +14,13 @@ class MonthCalendar(mixins.MonthCalendarMixin,generic.TemplateView):
         calendar_context=self.get_month_calendar()
         context.update(calendar_context)
         return context
+
+class WeekCalendar(mixins.WeekCalendarMixin,generic.TemplateView):
+    """週間カレンダーを表示するビュー"""
+    template_name='app/week.html'
+
+    def get_context_data(self,**kwargs): #super()は親クラスの関数を呼び出すことができる
+        context=super().get_context_data(**kwargs)
+        calendar_context=self.get_week_calendar()
+        context.update(calendar_context)
+        return context

@@ -72,4 +72,33 @@ class MonthCalendarMixin(BaseCalendarMixin):
     class WeekCalendarMixin(BaseCalendarMixin):
         """週間カレンダーの機能を提供するMixin"""
 
-        def 
+        def get_week_days(self):
+            """その週の日を全て返す"""
+            month=self.kwargs.get('month')
+            year =self.kwargs.get('year')
+            day=self.kwargs.get('day')
+            if month and year and day:
+                date=datetime.date(year=int(year),month=int(month),day=int(day))
+            else:
+                date=datetime.date.today()
+            
+            for week in self._calendar.monthdatescalendar(date.year,date_month):
+                if date in week: #週ごとに取り出され、中身は全てdatetime型、該当の日が含まれていれば、それが今回表示すべき週になる。
+                    return week
+            
+            def get_week_calendar(self):
+                """週間カレンダーの情報の入った辞書を返す"""
+                self.setup_calendar()
+                days=self.get_week_days()
+                first=days[0]
+                last=days[-1]
+                calendar_data={
+                    'now':datetime.date.today(),
+                    'week_days':days, #その週の全ての日を返している。7つのdatetimeオブジェクトが返される。月を跨いでいる日付が出ても、正しく跨いだ月でのdatetime.date型になっている。
+                    'week_previous':first - datetime.timedelta(days=7),
+                    'week_next':first + datetime.timedelta(days=7),
+                    'week_names':self.get_week_names(),
+                    'week_first':first,
+                    'week_last':last,
+                }
+                return calendar_data
