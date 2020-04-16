@@ -14,7 +14,8 @@
 <body>
 
 <div class="container" mt-3>
-    {% block content %}{% endblock %}
+        {% block content %}
+        {% endblock %}  <!--block , endblock は領域を確保するタグで、子テンプレートでこのblock内のHTMLを置き換えることができる。 block title, Django Boards, endblock のようにデフォルト値を指定することもでき、子テンプレートで何も設定されない場合はこのデフォルト値が使用される。-->
 </div>
 
 
