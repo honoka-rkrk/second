@@ -130,6 +130,40 @@ class WeekWithScheduleMixin(WeekCalendarMixin):
             calendar_context['week_days']
         )
         return calendar_context
+
+class MonthWithScheduleMixin(MonthCalendarMixin):
+    """スケジュール付きの、月間カレンダーを提供するMixin"""
+
+    def get_month_schedules(self,start,end,days):
+        """それぞれの日とスケジュールを返す。"""
+        lookup={
+            '{}__range'.format(self.date_field):(start,end)
+        }
+
+        queryset=self.model.objects.filter(**lookup)
+
+        day_schedules={day:[] for week in days for day in week}
+        for schedule in queryset:
+            schedule_date=getattr(schedule,self.date_field)
+            day_schedules[schedule_date].append(schedule)
+        
+         #day_schedule辞書を、週毎に分割する.[{１日：１日のスケジュール・・・}、{8日：8日のスケジュール...}...]
+         #7個ずつ取り出して分割している。各週のスケジュールを含んだリスト
+        size=len(day_schedules)
+        return [{key: day_schedules[key] for key in itertools.islice(day_schedules, i, i+7)} for i in range(0, size, 7)]
+
+    def get_month_calendar(self):
+        calendar_context=super().get_month_calendar()
+        month_days=calendar_context['month_days']
+        month_first=month_days[0][0]  #month_daysは週毎に二次元のリストになっている。二次元のリストの場合、[1~7]は０、[8~14]は１というようになる。さらに[1~7]のリストであれば、1は０、２は１、[8~14]であれば８は１というようになる。合わせると、[0][0]で１日、[-1][-1]=31
+        month_last=month_days[-1][-1]
+        calendar_context['month_day_schedules']=self.get_month_schedules(
+            month_first,
+            month_last,
+            month_days
+        )
+        return calendar_context
+
  
 
 

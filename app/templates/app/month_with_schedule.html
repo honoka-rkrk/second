@@ -1,0 +1,51 @@
+{% extends 'app/base.html' %}
+{% block content %} <!-- table-layout:fixedはテーブルの各幅を均等にする overflow:hiddenははみ出た部分を隠す　whitespace:nowrapは消すと幅に治らない部分は折り返されて表示される。-->
+    <style> 
+        table{
+            table-layout:fixed;
+        }
+        td > div{
+            height:100px;
+            overflow:hidden;
+            white-space:nowrap;
+        }
+    </style>
+    <a href="{% url 'app:month_with_schedule' month_previous.year month_previous.month %}">前月</a>
+    {{ month_current | date:"Y年m月" }}
+    <a href="{% url 'app:month_with_schedule' month_next.year month_next.month %}">次月</a>
+    <table class="table">
+        <thead>
+            <tr>
+                {% for w in week_names %}
+                  <th>{{ w }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for week_day_schedules in month_day_schedules %} <!--month_day_scheduleはスケジュール付き週間カレンダーのweek_day_sheduleが複数詰まったリストなので、このように取り出す-->
+                <tr>
+                    {% for day,schedules in week_day_schedules.items %}
+                            {% if now == day %}
+                                <td class="table-success">
+                                    {% else %}
+                                <td>
+                            {% endif %}
+
+                            <div> <!--以下の日付やスケジュールをdivで囲っている。divで囲わないといくつかのcssが設定できなくなる。-->
+                                {% if month_current.month != day.month %}
+                                    {{ day | date:"m/d" }}
+                                {% else %}
+                                    {{ day.day}}
+                                {% endif %}
+
+                                {% for schedule in schedules %}
+                                    <p>{{ schedule.summary }}</p>
+                                {% endfor %}
+                            </div>
+                            </td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
