@@ -2,6 +2,8 @@
 import calendar
 from collections import deque 
 import datetime
+import itertools
+from django import forms
 
 class BaseCalendarMixin:
     """カレンダー関連Mixinの、基底クラス"""
@@ -103,3 +105,33 @@ class WeekCalendarMixin(BaseCalendarMixin):
             'week_last':last,
                 }
         return calendar_data
+
+class WeekWithScheduleMixin(WeekCalendarMixin):
+    """スケジュール付きの、週間カレンダーを提供するMixin"""
+
+    def get_week_schedules(self,start,end,days):
+        """それぞれの日とスケジュールを返す"""
+        lookup={'{}__range'.format(self.date_field):(start,end)}
+        #例えば、Schedule.objects.filter(date_range=(1日、３１日))になる
+        queryset=self.model.objects.filter(**lookup)
+
+        #{１日のdatetime:１日のスケジュール全て、2日のdatetime:2日の全て・・・}のような辞書を作る
+        day_schedules={day:[] for day in days} #{}で辞書の定義：でキーと値をかく
+        for schedule in queryset:
+            schedule_date=getattr(schedule,self.date_field) # getattr(object,name[default]:objectの指名された属性の値を返す。nameは文字列。文字列がオブジェクトの属性の一つであった場合、戻り値はその属性の値になる。
+            day_schedules[schedule_date].append(schedule)
+        return day_schedules
+
+    def get_week_calendar(self):
+        calendar_context=super().get_week_calendar() #あるクラス(子クラス)で別のクラス(親クラス)を継承できる。継承すると、親クラスのメソッドを子クラスから呼び出すことができる。その際に使うのがsuper()。
+        calendar_context['week_day_schedules']=self.get_week_schedules(
+            calendar_context['week_first'],
+            calendar_context['week_last'],
+            calendar_context['week_days']
+        )
+        return calendar_context
+ 
+
+
+
+
