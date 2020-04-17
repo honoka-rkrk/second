@@ -1,0 +1,49 @@
+{% extends 'app/base.html' %}
+{% block content %}
+    <div class="row">
+        <div class="col-md-3"> <!--ひだりがわ（colーmd-3)に、月間カレンダーとスケジュール登録フォーム-->
+            {% include 'app/includes/month.html' %} <!--テンプレート内に他のテンプレートを入れたいときにincludeを使う-->
+            <hr> <!--水平の横線を引くためのタグ -->
+            <form action="" method="POST">
+                {{ form.non_field_errors }} <!--特定のフィールドに紐づかないエラーを表示するための記述です。書き忘れると幾つかのエラーが表示されなくなり、「なんで上手く送信できないのか分からない...」と悩むことになりますので、忘れないようにしてください-->
+                {% for field in form %} <!--フォームの各フィールドを取り出す-->
+                    <div class="form-group row">
+                        <label for="{{field.id_for_label }}"
+                            class="col-sm-4 col-form-label">{{ field.label_tag }}</label> <!--フォームの中でフォームの項目名と構成部品（チェックボックス、ラジオボタンなど）を関連付けるためのタグです。
+                                関連付けを行うことにより、ブラウザでラベル（もしくはラベルのアクセスキー）をクリックした際に、その構成部品をクリックしたのと同じ動作が可能になります。
+                                <label>タグの指定方法には2つあり、1つは<label>タグのfor属性の値と、フォーム部品のid属性の値を同じにすることで両者の関連付けができます。もう一つは、<label>～</label>内に部品とラベルを配置するという方法です。
+                                ただし、この方法はInternet Explorer6以前のブラウザには対応していないので、できるだけ前者を用いた方がよいでしょう。-->
+                        <div class="col-sm-8">
+                            {{ field }}
+                            {{ field.errors }} <!--フィールドに紐づくエラーが全て表示されます。-->
+                        </div>
+                    </div>
+                {% endfor %}
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary btn-block">送信</button>
+            </form>
+        </div>
+        <div class="col-md-9"> <!--右側(col-md-9)に週間カレンダーwithスケジュール -->
+            {% include 'app/includes/week.html' %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block extrajs %} <!--他のテンプレートでscriptタグの記述が必要なため、最後に block extrajs , endblock としています。-->
+    <link rel="stylesheet" type="text/css"
+        href="https://cdnjs.cloudflare.com/ajax/libs/timedropper/1.0/timedropper.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/timedropper/1.0/timedropper.min.js"></script>
+    <script>
+        $(function (){
+            //timedropper format:選択した時刻の表示フォーマット、setCurrentTime:デフォルトで現在時刻を設定するか
+            $("#id_start_time").timeDropper({
+                format: "H:mm", 
+                setCurrentTime:false,
+            });
+            $("#id_end_time").timeDropper({
+                format: "H:mm",
+                setCurrentTime:false,
+            });
+        });
+    </script>
+{% endblock %}
