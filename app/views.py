@@ -3,7 +3,7 @@ from django.views import generic
 from . import mixins
 import datetime
 from .models import Schedule
-from .forms import BS4ScheduleForm
+from .forms import BS4ScheduleForm, SimpleScheduleForm
 
 #ビューではMixinを継承し、テンプレートへ渡すcontextとしてget_month_calendar()を含めれば、あとはテンプレートに好きに書くことができる。
 class MonthCalendar(mixins.MonthCalendarMixin,generic.TemplateView):
@@ -87,3 +87,23 @@ class MyCalendar(mixins.MonthCalendarMixin,mixins.WeekWithScheduleMixin,generic.
         schedule.date=date
         schedule.save()
         return redirect('app:mycalendar',year=date.year,month=date.month,day=date.day)
+
+class MonthWithFormsCalendar(mixins.MonthWithFormsMixin,generic.View):
+    """フォーム付きの月間カレンダーを表示するビュー"""
+    template_name='app/month_with_forms.html'
+    model=Schedule
+    date_field='date'
+    form_class=SimpleScheduleForm 
+
+    def get(self,request,**kwargs):
+        context=self.get_month_calendar()
+        return render(request,self.template_name,context)
+    
+    def post(self,request,**kwarsgs):
+        context=self.get_month_calendar()
+        formset=context['month_formset']
+        if formset.is_valid():
+            formset.save()
+            return redirect('app:month_with_forms')
+        
+        return render(request,self.template_name,context)

@@ -31,3 +31,15 @@ class BS4ScheduleForm(forms.ModelForm):#Modelクラスを元にFieldを自動的
                 '終了時間は、開始時間よりも後にしてください'
             )
         return end_time
+
+class SimpleScheduleForm(forms.ModelForm):
+    class Meta:
+        model=Schedule
+        fields=('summary','date',)
+        widgets={
+            'summary':forms.TextInput(attrs={
+                'class':'form-control',
+            }),
+            'date':forms.HiddenInput,
+        }
+        

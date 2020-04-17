@@ -26,6 +26,14 @@ urlpatterns=[
     path(
         'mycalendar/<int:year>/<int:month>/<int:day>/',views.MyCalendar.as_view(),name='mycalendar'
     ),
+    path(
+        'month_with_forms/',
+        views.MonthWithFormsCalendar.as_view(),name='month_with_forms'
+    ),
+    path(
+        'month_with_forms/<int:year>/<int:month>/',
+        views.MonthWithFormsCalendar.as_view(),name='month_with_forms'
+    ),
 ]
 
 """●path('month/<int:year>/<int:month>/',これは、URLの設定、
